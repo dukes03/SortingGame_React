@@ -15,7 +15,7 @@ export default function LoginPage() {
     const handleLogin = () => {
         if (!name.trim()) return alert("กรุณากรอกชื่อ");
         localStorage.setItem("user", JSON.stringify({ name, id: Date.now().toString(36) }));
-        router.push("/lobby" + (roomId ? `?roomId=${roomId}` : ""));
+        router.push("/lobby" + (roomId ? `?roomId=${roomId}` : `?roomId=${roomid}`)+"&username="+name);
     };
     const [isVisible, setIsVisibleInputRoomId] = useState(false);
 
@@ -36,8 +36,8 @@ export default function LoginPage() {
                     <input
                         className="border px-3 py-2 w-full mb-3"
                         placeholder="รหัสห้อง"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={roomid}
+                        onChange={(e) => setroomid(e.target.value)}
                     />
                 </div>
             )}
