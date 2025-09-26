@@ -53,6 +53,21 @@ export class SocketGateway {
         client.emit('roomCreated', { room, creator: username });
     }
 
+    // Is host room
+    @SubscribeMessage('IshostRoom')
+    handleIshostRoom(
+        @MessageBody() data: { room: string; username: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        const { room, username } = data;
+        const roomInfo = this.rooms.get(room);
+        if (roomInfo && roomInfo.creator === username) {
+            client.emit('userIshostRoom', true);
+        } else {
+            client.emit('userIshostRoom', false);
+        }
+
+    }
     // joinRoom
     @SubscribeMessage('joinRoom')
     handleJoinRoom(
@@ -80,6 +95,19 @@ export class SocketGateway {
         client.emit('joinedRoom', { room, username, creator: roomInfo.creator });
 
         this.notifyUserList(room);
+    }
+    @SubscribeMessage('startGame')
+    handleStartGame(
+        @MessageBody() data: { room: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        const { room } = data;
+        const roomInfo = this.rooms.get(room);
+        if (roomInfo && roomInfo.creator === client.data.username) {
+            this.server.to(room).emit('userGetGameState', 'playing');
+        } else {
+            client.emit('Error', 'Only the host can start the game.');
+        }
     }
 
     /**
