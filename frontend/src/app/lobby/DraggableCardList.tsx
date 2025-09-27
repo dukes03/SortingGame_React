@@ -1,15 +1,10 @@
-import React, { useState } from "react";
+import React, { use, useState, useEffect } from "react";
 import {
-    DndContext,
-    closestCenter,
-    PointerSensor,
-    useSensor,
-    useSensors,
+    DndContext, closestCenter, PointerSensor,
+    useSensor, useSensors,
 } from "@dnd-kit/core";
 import {
-    SortableContext,
-    arrayMove,
-    useSortable,
+    SortableContext, arrayMove, useSortable,
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
@@ -18,9 +13,19 @@ import { CSS } from "@dnd-kit/utilities";
 interface CardProps {
     id: string;
     content: string;
+    header?: string;
+    description?: string;
+    imageUrl?: string;
+    Textimage?: string;
+    variant?: number;
 }
+type DraggableCardListProps = {
+    listCard: any;
+    OnSubmitOrder: (order: number[]) => void;
+    StatePlaying?: string;
+};
 
-function Card({ id, content }: CardProps) {
+function Card({ id, content }: CardProps,) {
     // ทำให้ Card เคลื่อนตามเมาส์
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
@@ -43,14 +48,14 @@ function Card({ id, content }: CardProps) {
     );
 }
 
-export default function DraggableCardList() {
+export default function DraggableCardList({ listCard, OnSubmitOrder, StatePlaying }: DraggableCardListProps) {
     const [cards, setCards] = useState([
-        { id: "1", content: "🍎 Card 1" },
-        { id: "2", content: "🍊 Card 2" },
-        { id: "3", content: "🍋 Card 3" },
-        { id: "4", content: "🍉 Card 4" },
+        { id: "1", content: "🍎 Card 1", variant: 1 },
+        { id: "2", content: "🍊🍊 Card 2", variant: 2 },
+        { id: "3", content: "🍋🍋🍋 Card 3", variant: 3 },
+        { id: "4", content: "🍉 🍉🍉🍉Card 4", variant: 4 },
     ]);
-
+    console.log("📥 DraggableCardList:", listCard, cards);
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: { distance: 5 },
@@ -59,7 +64,7 @@ export default function DraggableCardList() {
 
     const handleDragEnd = (event: any) => {
         const { active, over } = event;
-        if (active.id !== over.id) {
+        if (active.id !== over.id&& StatePlaying === "Playing") {
             const oldIndex = cards.findIndex((c) => c.id === active.id);
             const newIndex = cards.findIndex((c) => c.id === over.id);
             setCards(arrayMove(cards, oldIndex, newIndex));
@@ -67,13 +72,28 @@ export default function DraggableCardList() {
     };
 
     const handleSubmit = () => {
-        console.log("📤 ลำดับใหม่:", cards);
-        alert("✅ ส่งเรียบร้อย! ดูใน console");
+        const orderedVariants = cards.map((card) => card.variant || 0);
+        console.log("📤 ส่งลำดับการ์ด:", orderedVariants);
+        OnSubmitOrder(orderedVariants);
     };
-
+    useEffect(() => {
+        if (listCard && Array.isArray(listCard.ListCard)) {
+            const newCards = listCard.ListCard.map((card: any, index: number) => ({
+                id: (index + 1).toString(),
+                content: `${card.Textimage} ${card.header}`,
+                header: card.header,
+                description: card.decription,
+                imageUrl: card.imageUrl,
+                Textimage: card.Textimage,
+                variant: card.variant,
+            }));
+            console.log("📤 useEffect:", newCards);
+            setCards(newCards);
+        }
+    }, [listCard]);
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
-            <h1 className="text-2xl font-bold mb-6">🪄 Drag & Drop (Smooth Move)</h1>
+            <h1 className="text-2xl font-bold mb-6">  Drag & Drop (Smooth Move)</h1>
 
             <DndContext
                 sensors={sensors}
@@ -88,13 +108,17 @@ export default function DraggableCardList() {
                     </div>
                 </SortableContext>
             </DndContext>
-
-            <button
-                onClick={handleSubmit}
-                className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
-            >
-                Submit ลำดับปัจจุบัน
-            </button>
+            {StatePlaying === "Playing" &&
+                <button
+                    onClick={handleSubmit}
+                    disabled={StatePlaying === "Playing" ? false : true}
+                    style={{
+                        backgroundColor: StatePlaying === "Playing" ? 'blue' : 'red'
+                    }}
+                    className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
+                >
+                    Submit ลำดับปัจจุบัน
+                </button>}
         </div>
     );
 }
