@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-
+import GlitterGravity from "../GlitterGravity";
 export default function LoginPage() {
     const searchParams = useSearchParams();
 
@@ -29,8 +29,10 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center   ">
-
-            <div className="bg-white p-8 rounded shadow-2xl   rounded-3xl  items-center  ">
+  <div className="fixed inset-0 pointer-events-none z-0">
+        <GlitterGravity />
+      </div>
+            <div className="bg-white p-8 rounded shadow-2xl   rounded-3xl  items-center  z-1 ">
                 <h1 className=" xl:text-3xl sm:text-xl  font-bold mb-4 text-center  ">เข้าร่วมห้อง</h1>
                 {isVisible && (
 

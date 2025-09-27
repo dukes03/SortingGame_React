@@ -8,6 +8,7 @@ import { QRCodeSVG } from "qrcode.react";
 import FooterUserList from './footer';
 import ContentHost from './ContentHost';
 import Playing from './playing';
+import Navbar from './Navbar';
 
 export default function LobbyPage() {
     const searchParams = useSearchParams();
@@ -72,7 +73,8 @@ export default function LobbyPage() {
 
     return (
 
-        <div className="max-w-md mx-auto p-6">
+        <div className="">
+            <Navbar />
             {gameState === "lobby" && <div>
                 <h2 className="text-2xl font-bold mb-4">Lobby  {room}</h2>
                 <div className="max-w-md mx-auto p-6">
