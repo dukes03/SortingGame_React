@@ -15,7 +15,7 @@ export default function LoginPage() {
     const handleLogin = () => {
         if (!name.trim()) return alert("กรุณากรอกชื่อ");
         localStorage.setItem("user", JSON.stringify({ name, id: Date.now().toString(36) }));
-        router.push("/lobby" + (roomId ? `?roomId=${roomId}` : `?roomId=${roomid}`)+"&username="+name);
+        router.push("/lobby" + (roomId ? `?roomId=${roomId}` : `?roomId=${roomid}`) + "&username=" + name);
     };
     const [isVisible, setIsVisibleInputRoomId] = useState(false);
 
@@ -28,28 +28,34 @@ export default function LoginPage() {
     }, [roomId]);
 
     return (
-        <div className="max-w-md mx-auto p-6">
-            <h2 className="text-2xl font-bold mb-4">Login</h2>
-            {isVisible && (
+        <div className="min-h-screen flex flex-col items-center justify-center   ">
 
-                <div >
+            <div className="bg-white p-8 rounded shadow-md  rounded-3xl    ">
+                <h1 className=" xl:text-3xl sm:text-xl  font-bold mb-4 text-center  ">เข้าร่วมห้อง</h1>
+                {isVisible && (
+
+                    <div className="xl:text-xl sm:text-sm  font-bold  "> รหัสห้อง
+                        <input
+                            className="border px-3 py-2 w-full mb-3 rounded-lg  "
+                            placeholder="รหัสห้อง"
+                            value={roomid}
+                            onChange={(e) => setroomid(e.target.value)}
+                        />
+                    </div>
+
+                )}
+                <div className="xl:text-xl sm:text-sm  font-bold  "> ชื่อ
                     <input
-                        className="border px-3 py-2 w-full mb-3"
-                        placeholder="รหัสห้อง"
-                        value={roomid}
-                        onChange={(e) => setroomid(e.target.value)}
+                        className="border px-3 py-2 w-full mb-3 rounded-lg"
+                        placeholder="ชื่อของคุณ"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                     />
+                    <button onClick={handleLogin} className="px-4 py-2 bg-blue-600 text-white rounded">
+                        เข้าสู่ระบบ
+                    </button>
                 </div>
-            )}
-            <input
-                className="border px-3 py-2 w-full mb-3"
-                placeholder="ชื่อของคุณ"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-            />
-            <button onClick={handleLogin} className="px-4 py-2 bg-blue-600 text-white rounded">
-                เข้าสู่ระบบ
-            </button>
+            </div>
         </div>
     );
 }
