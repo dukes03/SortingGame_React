@@ -1,19 +1,18 @@
 import React from 'react';
-
+import PlayerCard from "./PlayerCard";
 function FooterUserList({ UserList }: { UserList: string[] }) {
     return (
         <div>
             <footer className="text-center mt-4 text-gray-500">
-                <div>player</div>
-                <div>playercard</div>
-
-                <div className="mb-4 p-3 bg-gray-100 rounded">
-                    <strong>👤 ผู้ใช้งาน ({UserList.length}):</strong>
-                    <ul className="list-disc ml-6">
+                <strong>👤 ผู้ใช้งาน ({UserList.length}):</strong>
+                <div className="mb-4 p-3   rounded flex flex-wrap justify-center gap-3 shadow-md">
+               
+                 
                         {UserList.map((user, i) => (
-                            <li key={i}>{user}</li>
+                            <PlayerCard key={i} name={user} avatar={`https://ui-avatars.com/api/?name=${user}&background=random&size=32`} isYou={true} />
+                            
                         ))}
-                    </ul>
+                   
                 </div>
             </footer>
         </div>
