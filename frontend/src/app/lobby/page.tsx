@@ -9,6 +9,7 @@ import FooterUserList from './footer';
 import ContentHost from './ContentHost';
 import Playing from './playing';
 import Navbar from './Navbar';
+import FullscreenButton from "../FullscreenButton";
 
 export default function LobbyPage() {
     const searchParams = useSearchParams();
@@ -74,17 +75,21 @@ export default function LobbyPage() {
     return (
 
         <div className="">
-            <Navbar />
+
             {gameState === "lobby" && <div>
-                <h2 className="text-2xl font-bold mb-4">Lobby  {room}</h2>
-                <div className="max-w-md mx-auto p-6">
-                    <div className="p-4">
-                        <h2 className="mb-2">QR Code สำหรับ URL:</h2>
-                        <QRCodeSVG value={QRUrl} size={200} />
-                        {Ishost &&
-                            <ContentHost socket={socket} room={room} />}
-                    </div>
-                    QR Code: {room}
+                <Navbar />
+                <h1 className="text-[50px] font-bold text-center font-bold pt-6 m-4">Lobby  {room}</h1>
+                <div className="max-w-2xl mx-auto  bg-sky-50 shadow-xl  rounded-3xl  p-7   text-center flex   justify-center flex-row ">
+                    <div className="flex-1">
+                        <div className="flex justify-center items-center m-3 flex-col">
+                            <h2 className="mb-3 font-bold  text-center ">สามารถใช้ QR Code นี้ <br></br> เข้าห้องเข้าเล่นเกมได้จากทุกอุปกรณ์ </h2>
+                            <QRCodeSVG className="rounded" value={QRUrl} size={150} />
+                        </div>   </div>
+                    {Ishost &&
+                        <div className=" flex-1">
+                            <ContentHost socket={socket} room={room} />        </div>}
+
+
 
                 </div>
                 <FooterUserList UserList={userList} />
@@ -95,6 +100,7 @@ export default function LobbyPage() {
                     <h2 className="text-2xl font-bold mb-4">End Game  {room}</h2>
                     <div className="p-4">{score}</div>
                 </div>}
+            <FullscreenButton />
         </div>
 
     );

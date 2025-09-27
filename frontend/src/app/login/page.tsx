@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import GlitterGravity from "../GlitterGravity";
+import FullscreenButton from "../FullscreenButton";
+
 export default function LoginPage() {
     const searchParams = useSearchParams();
 
@@ -28,17 +30,17 @@ export default function LoginPage() {
     }, [roomId]);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center   ">
-  <div className="fixed inset-0 pointer-events-none z-0">
-        <GlitterGravity />
-      </div>
-            <div className="bg-white p-8 rounded shadow-2xl   rounded-3xl  items-center  z-1 ">
+        <div className="min-h-screen flex flex-col items-center  justify-center   ">
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <GlitterGravity />
+            </div>
+            <div className=" sm:max-md:w-90 bg-white p-8 rounded shadow-2xl   rounded-3xl  items-center  z-1 ">
                 <h1 className=" xl:text-3xl sm:text-xl  font-bold mb-4 text-center  ">เข้าร่วมห้อง</h1>
                 {isVisible && (
 
                     <div className="xl:text-xl sm:text-sm  font-bold    flex justify-between  "> รหัสห้อง
                         <input
-                            className="border-1 border-dashed border-gray-400 shadow-lg mx-3 px-3 py-2 w-90 mb-3 rounded-xl bg-gray-100 "
+                            className="border-1 border-dashed border-gray-400 shadow-lg mx-3 px-3 py-2 w-90 sm:max-md:w-50 mb-3 rounded-xl bg-gray-100 "
                             placeholder="รหัสห้อง"
                             value={roomid}
                             onChange={(e) => setroomid(e.target.value)}
@@ -48,7 +50,7 @@ export default function LoginPage() {
                 )}
                 <div className="xl:text-xl sm:text-sm  font-bold  flex justify-between   "> ชื่อผู้เล่น
                     <input
-                        className="border-1 border-dashed border-gray-400 shadow-lg px-3 py-2 mx-3 w-90 mb-3 rounded-xl bg-gray-100"
+                        className="border-1 border-dashed border-gray-400 shadow-lg px-3 py-2 mx-3 w-90 sm:max-md:w-50 mb-3 rounded-xl bg-gray-100"
                         placeholder="ชื่อของคุณ"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -60,6 +62,7 @@ export default function LoginPage() {
                         เข้าร่วมห้อง
                     </button></div>
             </div>
+            <FullscreenButton />
         </div>
     );
 }
