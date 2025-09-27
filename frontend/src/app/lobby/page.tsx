@@ -13,8 +13,9 @@ export default function LobbyPage() {
     const searchParams = useSearchParams();
 
     const [name, setName] = useState("");
-    const [gameState, setGameState] = useState("lobby");
+    const [gameState, setGameState] = useState("lobby");// lobby, playing, endgame
     const [Ishost, setIshost] = useState(false);
+    const [score, setscore] = useState(0);
     const room = searchParams.get("roomId");
     const username = searchParams.get("username");
     const [userInRoom, setUserInRoom] = useState("");
@@ -57,6 +58,11 @@ export default function LobbyPage() {
         socket.on("Error", (codeError) => {
             alert(codeError);
         });
+        socket.on("EndGameResult", (data) => {
+            setGameState("endgame");
+            setscore(data);
+            console.log(data);
+        });
     }, [socket]);
 
 
@@ -82,6 +88,11 @@ export default function LobbyPage() {
                 <FooterUserList UserList={userList} />
             </div>}
             {gameState === "playing" && <Playing socket={socket} room={room} />}
+            {gameState === "endgame" &&
+                <div>
+                    <h2 className="text-2xl font-bold mb-4">End Game  {room}</h2>
+                    <div className="p-4">{score}</div>
+                </div>}
         </div>
 
     );

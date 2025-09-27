@@ -7,18 +7,20 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { QUESTIONS, Question } from './questions.data';
+import e from 'express';
 interface RoomInfo {
     creator: string;
     maxRound: number;
     currentRound?: number;
     gameState?: string;
-    userInfo?: Map<string, UserInfo>;
+    userInfo: Map<string, UserInfo>;
 }
 interface UserInfo {
     scorePerRound: number[];
     totalScore: number;
     isReady: boolean;
     indeximage: number;
+    currentRound: number;
 }
 interface CardInfo {
     header: string;
@@ -142,7 +144,7 @@ export class SocketGateway {
             roomInfo.userInfo = new Map<string, UserInfo>();
         }
         if (!roomInfo.userInfo.has(username)) {
-            roomInfo.userInfo.set(username, { scorePerRound: [], totalScore: 0, isReady: false, indeximage: 0 });
+            roomInfo.userInfo.set(username, { scorePerRound: [], totalScore: 0, isReady: false, indeximage: 0, currentRound: 0 });
         }
 
         console.log(`📌 ${username} joined room: ${room}`);
@@ -176,8 +178,8 @@ export class SocketGateway {
      
     * userGetQuestion
     */
-    @SubscribeMessage('RequestQuestion')
-    handleRequestQuestion(
+    @SubscribeMessage('RequestQuestionRoom')
+    handleRequestQuestionRoom(
         @MessageBody() data: { room: string; },
         @ConnectedSocket() client: Socket,
     ) {
@@ -191,7 +193,37 @@ export class SocketGateway {
         question.ListCard = this.shuffleArray(question.ListCard);
         this.server.to(room).emit('userGetQuestion', question);
     }
+    /**
+     
+    * userGetQuestion
+    */
+    @SubscribeMessage('RequestQuestion')
+    handleRequestQuestion(
+        @MessageBody() data: { room: string; },
+        @ConnectedSocket() client: Socket,
+    ) {
+        const { room } = data;
+        const roomInfo = this.rooms.get(room);
+        let indexQuestion = 0;;
+        if (!roomInfo) {
+            client.emit('Error', 'Room not found.');
+            return;
+        }
+        console.log(client.data.username, roomInfo.userInfo.get(client.data.username)!.currentRound);
+        if (roomInfo.userInfo?.get(client.data.username)!.currentRound) {
+            indexQuestion = roomInfo.userInfo.get(client.data.username)!.currentRound;
+        }
 
+        if (indexQuestion < roomInfo.maxRound) {
+            let question = this.questions[indexQuestion];
+            question.ListCard = this.shuffleArray(question.ListCard);
+            client.emit('userGetQuestion', question);
+        }
+        else {
+            client.emit('Error', 'หมดรอบแล้ว');
+            client.emit('EndGameResult', roomInfo.userInfo.get(client.data.username)!.totalScore );
+        }
+    }
     /**
      
     * userGetQuestion
@@ -207,10 +239,17 @@ export class SocketGateway {
             client.emit('Error', 'Room not found.');
             return;
         }
+
+
         const result = this.checkSortedAndScore(data.answer);
         roomInfo.userInfo?.get(client.data.username)?.scorePerRound.push(result.correctPairs);
         if (roomInfo.userInfo?.get(client.data.username)?.totalScore) {
             roomInfo.userInfo.get(client.data.username)!.totalScore += result.correctPairs;
+            roomInfo.userInfo.get(client.data.username)!.currentRound! += 1;
+        }
+        else {
+            roomInfo.userInfo.get(client.data.username)!.totalScore = result.correctPairs;
+            roomInfo.userInfo.get(client.data.username)!.currentRound = 1;
         }
 
         this.server.to(room).emit('userGetResultQuestion', result);

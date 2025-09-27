@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -23,4 +24,74 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 🌈 พื้นหลัง gradient นุ่ม ๆ เคลื่อน */
+.bg-party {
+  background: linear-gradient(135deg, #fde2e4, #fef6e4, #e2ece9, #bee1e6);
+  background-size: 300% 300%;
+  animation: bgFlow 20s ease infinite;
+}
+
+@keyframes bgFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ✨ กลิตเตอร์ละเอียดที่เคลื่อนไหว */
+.glitter-layer {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(white 1px, transparent 1px),
+    radial-gradient(white 1px, transparent 1px);
+  background-position: 0 0, 50px 50px;
+  background-size: 100px 100px;
+  opacity: 0.4;
+  mix-blend-mode: screen;
+  animation: glitterFloat 40s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes glitterFloat {
+  from {
+    background-position: 0 0, 50px 50px;
+  }
+
+  to {
+    background-position: 500px 1000px, 550px 1050px;
+  }
+}
+
+/* 🎉 confetti ลอยแบบสุ่ม */
+.confetti-layer {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle 4px at 20% 20%, #ff6b6b 100%, transparent 0),
+    radial-gradient(circle 3px at 40% 60%, #ffd93d 100%, transparent 0),
+    radial-gradient(circle 5px at 70% 40%, #6bcBef 100%, transparent 0),
+    radial-gradient(circle 3px at 90% 80%, #c77dff 100%, transparent 0);
+  background-repeat: no-repeat;
+  animation: confettiDrift 30s linear infinite;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+@keyframes confettiDrift {
+  0% {
+    background-position: 0% 0%, 20% 0%, 40% 0%, 60% 0%;
+  }
+
+  100% {
+    background-position: 0% 120%, 20% 150%, 40% 140%, 60% 160%;
+  }
 }
