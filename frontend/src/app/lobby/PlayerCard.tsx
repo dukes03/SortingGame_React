@@ -13,17 +13,17 @@ const PlayerCard = ({ name, avatar, isYou, isHost }: { name: string, avatar: str
                 </span>
             )}
             <div
-                className={`flex  justify-items-start items-center   px-3 py-2 rounded-full shadow-xl z-3 ${isYou && isHost ? "bg-amber-200" : isHost ? "bg-amber-200" : isYou ? "bg-red-100" : "bg-sky-50"}`}
+                className={`flex  justify-items-start items-center   px-3 py-2 rounded-full shadow-xl  ${isYou && isHost ? "bg-amber-200" : isHost ? "bg-amber-200" : isYou ? "bg-red-100" : "bg-sky-50"}`}
             >
                 {/* Avatar */}
                 <img
                     src={avatar}
                     alt={name}
-                    className="w-8 h-8 rounded-full border border-gray-300 z-2"
+                    className="w-8 h-8 rounded-full border border-gray-300  "
                 />
 
                 {/* Name */}
-                <span className="text-sm px-3 font-medium text-gray-800 z-2 ">{name}</span>
+                <span className="text-sm px-3 font-medium text-gray-800  ">{name}</span>
 
                 {/* Badge "You" */}
 

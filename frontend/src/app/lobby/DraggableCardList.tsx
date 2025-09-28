@@ -1,7 +1,7 @@
 import React, { use, useState, useEffect } from "react";
 import {
     DndContext, closestCenter, PointerSensor,
-    useSensor, useSensors,
+    useSensor, useSensors, TouchSensor
 } from "@dnd-kit/core";
 import {
     SortableContext, arrayMove, useSortable,
@@ -18,6 +18,7 @@ interface CardProps {
     imageUrl?: string;
     Textimage?: string;
     variant?: number;
+    isDraggable?: boolean;
 }
 type DraggableCardListProps = {
     listCard: any;
@@ -25,23 +26,24 @@ type DraggableCardListProps = {
     StatePlaying?: string;
 };
 
-function Card({ id, content }: CardProps,) {
-    // ทำให้ Card เคลื่อนตามเมาส์
+function Card({ id, content, isDraggable }: CardProps,) {
+
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
+        touchAction: "none",
     };
 
     return (
         <div
             ref={setNodeRef}
             style={style}
-            {...attributes}
-            {...listeners}
-            className={`p-4 rounded-xl shadow bg-white border cursor-grab select-none ${isDragging ? "shadow-xl scale-105 bg-blue-100" : "hover:bg-blue-50"
-                }`}
+            // ถ้า isDraggable = false → ไม่กระจาย listeners/attributes เลย
+            {...(isDraggable ? attributes : {})}
+            {...(isDraggable ? listeners : {})}
+            className={`p-4 rounded-xl shadow bg-white border select-none  ${isDragging ? "shadow-lg scale-105 bg-blue-100" : ""}`}
         >
             <p className="font-semibold">{content}</p>
         </div>
@@ -55,16 +57,15 @@ export default function DraggableCardList({ listCard, OnSubmitOrder, StatePlayin
         { id: "3", content: "🍋🍋🍋 Card 3", variant: 3 },
         { id: "4", content: "🍉 🍉🍉🍉Card 4", variant: 4 },
     ]);
+
     console.log("📥 DraggableCardList:", listCard, cards);
     const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: { distance: 5 },
-        })
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 5 } })
     );
-
     const handleDragEnd = (event: any) => {
         const { active, over } = event;
-        if (active.id !== over.id&& StatePlaying === "Playing") {
+        if (active.id !== over.id && StatePlaying == "Playing") {
             const oldIndex = cards.findIndex((c) => c.id === active.id);
             const newIndex = cards.findIndex((c) => c.id === over.id);
             setCards(arrayMove(cards, oldIndex, newIndex));
@@ -90,7 +91,7 @@ export default function DraggableCardList({ listCard, OnSubmitOrder, StatePlayin
             console.log("📤 useEffect:", newCards);
             setCards(newCards);
         }
-    }, [listCard]);
+    }, [listCard, StatePlaying]);
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
             <h1 className="text-2xl font-bold mb-6">  Drag & Drop (Smooth Move)</h1>
@@ -103,7 +104,7 @@ export default function DraggableCardList({ listCard, OnSubmitOrder, StatePlayin
                 <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
                     <div className="w-full max-w-sm space-y-3">
                         {cards.map((card) => (
-                            <Card key={card.id} id={card.id} content={card.content} />
+                            <Card key={card.id} id={card.id} content={card.content} isDraggable={StatePlaying == "Playing" } />
                         ))}
                     </div>
                 </SortableContext>
@@ -111,7 +112,7 @@ export default function DraggableCardList({ listCard, OnSubmitOrder, StatePlayin
             {StatePlaying === "Playing" &&
                 <button
                     onClick={handleSubmit}
-                    disabled={StatePlaying === "Playing" ? false : true}
+                    disabled={StatePlaying == "Playing" ? false : true}
                     style={{
                         backgroundColor: StatePlaying === "Playing" ? 'blue' : 'red'
                     }}

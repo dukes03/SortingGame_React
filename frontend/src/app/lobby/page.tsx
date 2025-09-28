@@ -10,6 +10,7 @@ import ContentHost from './ContentHost';
 import Playing from './playing';
 import Navbar from './Navbar';
 import FullscreenButton from "../FullscreenButton";
+import GlitterGravity from "../GlitterGravity";
 
 export default function LobbyPage() {
     const searchParams = useSearchParams();
@@ -78,9 +79,11 @@ export default function LobbyPage() {
     return (
 
         <div className="">
-
+            <div className="fixed inset-0 pointer-events-none -z-1">
+                <GlitterGravity />
+            </div>
             {/* Lobby Page */}
-            {gameState === "lobby" && <div>
+            {gameState === "lobby" && <div >
                 <Navbar />
 
 

@@ -1,4 +1,5 @@
 import DraggableCardList from './DraggableCardList';
+import CircularProgress from './../component/CircularProgress';
 import React from 'react';
 import { useState, useEffect } from "react";
 interface infoRoom {
@@ -13,7 +14,8 @@ function Playing({ socket, room }: infoRoom) {
 
     const [IsSubmit, setIsSubmit] = useState(false);
     const [StatePlaying, setStatePlaying] = useState("Playing");// Playing, Waiting, ShowAnswer, EndGame
-    const [listcardQuestion, setlistcardQuestion] = useState("");
+    const [listcardQuestion, setlistcardQuestion] = useState({ question: "กำลังโหลดคำถาม...", ListCard: [{ id: "1", content: "🍎 Card 1", variant: 1 }, { id: "2", content: "🍊🍊 Card 2", variant: 2 }, { id: "3", content: "🍋🍋🍋 Card 3", variant: 3 }, { id: "4", content: "🍉 🍉🍉🍉Card 4", variant: 4 }] });
+    console.log("📥 Playing:", listcardQuestion, StatePlaying, IsSubmit);
     useEffect(() => {
         socket.emit("RequestQuestion", { room });
         socket.on("userGetQuestion", (data: any) => {
@@ -43,10 +45,16 @@ function Playing({ socket, room }: infoRoom) {
     return (
         <div>
             {/* Header */}
-            <div className="text-2xl font-bold mb-4">
-                <div>Game is now playing in room {room}!</div>
-                <div>Time  !</div>
-                <div>Round  !</div>
+            <div className="flex justify-center items-center ">
+                <div className="text-2xl font-bold space-x-3 mb-4 p-5  bg-sky-50 flex  flex-row w-1/3 justify-between items-center   rounded-xl shadow-xl ">
+                    <div>  {listcardQuestion.question} และส่งคำตอบภายในเวลาที่กำหนด</div>
+                    {/* Time */}
+
+                    <CircularProgress progress={10} textinner='3/5' textsub="รอบที่" />
+                    {/* Round */}
+
+                    <CircularProgress progress={10} textinner='19' textsub="วินาที" />
+                </div>
             </div>
             {/* Body */}
             <DraggableCardList listCard={listcardQuestion} OnSubmitOrder={handleSubmitOrder} StatePlaying={StatePlaying}></DraggableCardList>
