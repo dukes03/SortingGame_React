@@ -17,6 +17,7 @@ export default function LobbyPage() {
     const [name, setName] = useState("");
     const [gameState, setGameState] = useState("lobby");// lobby, playing, endgame
     const [Ishost, setIshost] = useState(false);
+    const [hostname, setHostName] = useState("");
     const [score, setscore] = useState(0);
     const room = searchParams.get("roomId");
     const username = searchParams.get("username");
@@ -32,6 +33,7 @@ export default function LobbyPage() {
             router.push("/");
             return alert("ไม่มีรหัสห้อง");
         }
+        setName(username || "");
         socket.emit("joinRoom", { room, username });
 
         socket.on("userJoined", (data) => {
@@ -39,7 +41,8 @@ export default function LobbyPage() {
             console.log(data.username + " เข้าห้อง ");
         });
         socket.on("userList", (users) => {
-            setUserList(users);
+            setUserList(users.users);
+            setHostName(users.creator);
         });
         socket.on("joinRoomError", (users) => {
             // alert(users);
@@ -92,7 +95,7 @@ export default function LobbyPage() {
 
 
                 </div>
-                <FooterUserList UserList={userList} />
+                <FooterUserList UserList={userList} Username={name} Hostname={hostname} />
             </div>}
             {gameState === "playing" && <Playing socket={socket} room={room} />}
             {gameState === "endgame" &&

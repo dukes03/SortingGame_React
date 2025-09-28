@@ -1,15 +1,19 @@
 import React from "react";
 
-const PlayerCard = ({ name, avatar, isYou }: { name: string, avatar: string, isYou: boolean; }) => {
+const PlayerCard = ({ name, avatar, isYou, isHost }: { name: string, avatar: string, isYou: boolean, isHost: boolean; }) => {
     return (
         <div className="relative " >    {isYou && (
-            <span className="  absolute -z-1 -top-5 -left-0    text-xs bg-red-400 text-white px-5 py-5 rounded-md  flex justify-center items-center">
+            <span className={`  absolute -z-1  text-xs bg-red-400 text-white px-5 py-5 rounded-md  flex justify-center items-center ${isHost ? "-top-5 left-10" : "-top-5 -left-0"}  `}>
                 <span className="absolute -z-1 -top-0.5">  You</span>
             </span>
         )}
+            {isHost && (
+                <span className="  absolute -z-1 -top-5 -left-0    text-xs bg-amber-400 text-white px-5 py-5 rounded-md  flex justify-center items-center">
+                    <span className="absolute -z-1 -top-0.5">  Host</span>
+                </span>
+            )}
             <div
-                className={`flex  justify-items-start items-center   px-5 py-2 rounded-full shadow-xl z-3 ${isYou ? "bg-red-100" : "bg-white"
-                    }`}
+                className={`flex  justify-items-start items-center   px-5 py-2 rounded-full shadow-xl z-3 ${isYou && isHost ? "bg-amber-200" : isHost ? "bg-amber-200" : isYou ? "bg-red-100" : "bg-white"}`}
             >
                 {/* Avatar */}
                 <img

@@ -29,7 +29,10 @@ interface CardInfo {
     Textimage: string;
     variant: number;
 }
-
+interface ListUserInRoom {
+    users: any;
+    creator: string;
+}
 
 @WebSocketGateway({
     cors: {
@@ -221,7 +224,7 @@ export class SocketGateway {
         }
         else {
             client.emit('Error', 'หมดรอบแล้ว');
-            client.emit('EndGameResult', roomInfo.userInfo.get(client.data.username)!.totalScore );
+            client.emit('EndGameResult', roomInfo.userInfo.get(client.data.username)!.totalScore);
         }
     }
     /**
@@ -308,6 +311,8 @@ export class SocketGateway {
     private async notifyUserList(room: string) {
         const sockets = await this.server.in(room).fetchSockets();
         const users = sockets.map((s) => s.data.username || 'Unknown');
-        this.server.to(room).emit('userList', users);
+        const listUsers: ListUserInRoom = { users, creator: this.rooms.get(room)?.creator || '' };
+        console.log(`👥 Users in room ${room}:`, listUsers);
+        this.server.to(room).emit('userList', listUsers);
     }
 }
