@@ -73,13 +73,13 @@ export class SocketGateway {
         console.log(`✅ Client connected: ${client.id}`);
     }
     checkSortedAndScore(arr) {
-        let correctPairs = 0;
+        let correctPairs = 1;
         let wrongIndexes = [] as number[];
         for (let i = 0; i < arr.length - 1; i++) {
             if (arr[i] <= arr[i + 1]) correctPairs++;
             else { wrongIndexes.push(i); }
         }
-        const totalPairs = arr.length - 1;
+        const totalPairs = arr.length ;
         return { correctPairs, totalPairs, wrongIndexes };
     }
 
@@ -247,6 +247,7 @@ export class SocketGateway {
 
 
         const result = this.checkSortedAndScore(data.answer);
+
         roomInfo.userInfo?.get(client.data.username)?.scorePerRound.push(result.correctPairs);
         if (roomInfo.userInfo?.get(client.data.username)?.totalScore) {
             roomInfo.userInfo.get(client.data.username)!.totalScore += result.correctPairs;
@@ -256,7 +257,6 @@ export class SocketGateway {
             roomInfo.userInfo.get(client.data.username)!.totalScore = result.correctPairs;
             roomInfo.userInfo.get(client.data.username)!.currentRound = 1;
         }
-
         client.emit('userGetResultQuestion', result);
     }
 

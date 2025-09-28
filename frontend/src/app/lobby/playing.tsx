@@ -12,9 +12,9 @@ interface dataquestion {
     lengthQuestion: number;
 }
 interface ResultQuestion {
-correctPairs: number;
-totalPairs: number;
-wrongIndexes: number[];
+    correctPairs: number;
+    totalPairs: number;
+    wrongIndexes: number[];
 }
 
 function Playing({ socket, room }: infoRoom) {
@@ -25,9 +25,13 @@ function Playing({ socket, room }: infoRoom) {
     const [IsSubmit, setIsSubmit] = useState(false);
     const [roundPlay, setroundPlay] = useState(0);
     const [Maxround, setMaxround] = useState(1);
+    const [score, setscore] = useState(0);
+    const [wrongIndexes, setwrongIndexes] = useState<number[]>([]);
     const [StatePlaying, setStatePlaying] = useState("Playing");// Playing, Waiting, ShowAnswer, EndGame
     const [listcardQuestion, setlistcardQuestion] = useState({ question: "กำลังโหลดคำถาม...", ListCard: [{ id: "1", content: "🍎 Card 1", variant: 1 }, { id: "2", content: "🍊🍊 Card 2", variant: 2 }, { id: "3", content: "🍋🍋🍋 Card 3", variant: 3 }, { id: "4", content: "🍉 🍉🍉🍉Card 4", variant: 4 }] });
-    console.log("📥 Playing:", listcardQuestion, StatePlaying, IsSubmit);
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+    const sizeCirvularValue = isDesktop ? 100 : 70;
+
     useEffect(() => {
         socket.emit("RequestQuestion", { room });
         socket.on("userGetQuestion", (data: dataquestion) => {
@@ -39,8 +43,10 @@ function Playing({ socket, room }: infoRoom) {
             setStatePlaying("Playing");
             setIsSubmit(false);
         });
-        socket.on("userGetResultQuestion", (data: any) => {
+        socket.on("userGetResultQuestion", (data: ResultQuestion) => {
             console.log("📥 userGetResultQuestion:", data);
+            setscore(data.correctPairs);
+            setwrongIndexes(data.wrongIndexes);
             setStatePlaying("ShowAnswer");
         });
     }, [socket, room]);
@@ -61,30 +67,36 @@ function Playing({ socket, room }: infoRoom) {
         <div>
             {/* Header */}
             <div className="flex justify-center items-center ">
-                <div className="text-2xl font-bold space-x-3 mb-4 p-5  bg-sky-50 flex  flex-row w-1/3 justify-between items-center   rounded-b-xl shadow-xl ">
+                <div className="md:text-2xl sm:text-xl font-bold space-x-3 md:mb-4 md:p-5 sm:px-3  bg-sky-50 flex  flex-row md:w-1/3 sm:w-4/5 justify-between items-center   rounded-b-xl shadow-xl ">
                     <div>  {listcardQuestion.question} และส่งคำตอบภายในเวลาที่กำหนด</div>
                     {/* Time */}
 
-                    <CircularProgress progress={(roundPlay / Maxround) * 100} textinner={`${roundPlay}/${Maxround} `} textsub="รอบที่" colorhex="#4b4b4bff" colorhexsub="#acabab83"
+                    <CircularProgress progress={(roundPlay / Maxround) * 100}  size={sizeCirvularValue} textinner={`${roundPlay}/${Maxround} `} textsub="รอบที่" colorhex="#4b4b4bff" colorhexsub="#acabab83"
                         colorClassMain="text-stone-600" colorClasssub="text-stone-500" />
                     {/* Round */}
 
-                    <CircularProgress progress={10} textinner='19' textsub="วินาที" colorhex="#ff790cff" colorhexsub="#ffa1545e"
+                    <CircularProgress progress={10} textinner='19' size={sizeCirvularValue} textsub="วินาที" colorhex="#ff790cff" colorhexsub="#ffa1545e"
                         colorClassMain="text-amber-500" colorClasssub="text-amber-400" />
                 </div>
             </div>
             {/* Body */}
+            {StatePlaying == "ShowAnswer" && <div>
+                <div className='text-3xl font-bold  text-center md:m-5 '> เฉลยคำตอบ คุณได้ {score} คะแนน </div>
+            </div>}
 
-            <DraggableCardList listCard={listcardQuestion} OnSubmitOrder={handleSubmitOrder} StatePlaying={StatePlaying}></DraggableCardList>
+            {/* Body  Sortcard*/}
+            <DraggableCardList listCard={listcardQuestion} OnSubmitOrder={handleSubmitOrder} StatePlaying={StatePlaying} WrongIndexes={wrongIndexes}></DraggableCardList>
 
             {/* footer */}
             {StatePlaying == "ShowAnswer" &&
-                < button
-                    onClick={ReqNewQuestion}
-                    className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
-                >
-                    ReqNewQuestion
-                </button>}
+                <div className="flex justify-end items-center ">
+                    < button
+                        onClick={ReqNewQuestion}
+                        className="md:m-6 sm:mx-10 sm:my-1  px-6   py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
+                    >
+                        ไปข้อถัดไป
+                    </button>
+                </div >}
         </div >
     );
 }

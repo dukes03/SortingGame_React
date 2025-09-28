@@ -75,11 +75,6 @@ export default function LobbyPage() {
         }
     }, [socket]);
 
-
-
-
-
-
     return (
 
         <div className="">
@@ -115,9 +110,18 @@ export default function LobbyPage() {
             {gameState === "playing" && <Playing socket={socket} room={room} />}
             {/* endgame Page */}
             {gameState === "endgame" &&
-                <div>
-                    <h2 className="text-2xl font-bold mb-4">End Game  {room}</h2>
-                    <div className="p-4">{score}</div>
+                <div className="flex flex-col justify-center items-center h-screen  space-y-5  " >
+                    {/* <h2 className="text-[50px] font-bold mb-4">จบเกม Lobby {room}</h2> */}
+                    <div className=" bg-amber-500  text-white p-10 text-center rounded-t rounded-full" >
+                        <div className="text-5xl font-bold ">สรุปผล คุณได้ทั้งหมด</div>
+                        <div className="text-9xl font-bold">{score}</div>
+                        <div className="text-5xl  font-bold">คะแนน</div>
+                    </div>
+                    <a href="/"
+                        className=" px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
+                    >
+                        กลับหน้าเมนู
+                    </a >
                 </div>}
             <FullscreenButton />
         </div>

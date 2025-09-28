@@ -41,9 +41,9 @@ const CircularProgress = ({ size = 100, strokeWidth = 12, progress = 75, colorCl
                 />
             </svg>
             {/* text */}
-            <div className="absolute top-[30px] font-bold  flex flex-col items-center justify-center">
-                <div className={` text-3xl  ${colorClassMain} `}>{textinner}</div>
-                <div className={`text-sm  ${colorClasssub} `}>{textsub}</div>
+            <div className="absolute md:top-[30px]  sm:top-[10px]   font-bold  flex flex-col items-center justify-center">
+                <div className={`md:text-3xl sm:text-xl ${colorClassMain} `}>{textinner}</div>
+                <div className={`md:text-sm   sm:text-xs ${colorClasssub} `}>{textsub}</div>
             </div>
         </div>
     );
