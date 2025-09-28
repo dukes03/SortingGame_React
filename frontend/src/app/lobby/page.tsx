@@ -26,7 +26,7 @@ export default function LobbyPage() {
     const [userList, setUserList] = useState<string[]>([]);
     const socket = getSocket();
     const router = useRouter();
-    const QRUrl = `http://localhost:3000/login?roomId=${room}`;
+    const [QRUrl, setQRUrl] = useState("");
 
 
     useEffect(() => {
@@ -69,6 +69,10 @@ export default function LobbyPage() {
             setscore(data);
             console.log(data);
         });
+        if (typeof window !== 'undefined') {
+            const url = `http://${window.location.hostname}:3000/login?roomId=${room}`;
+            setQRUrl(url);
+        }
     }, [socket]);
 
 

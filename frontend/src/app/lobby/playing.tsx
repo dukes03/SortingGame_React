@@ -6,6 +6,16 @@ interface infoRoom {
     socket: any;
     room: any;
 }
+interface dataquestion {
+    question: any;
+    indexQuestion: number;
+    lengthQuestion: number;
+}
+interface ResultQuestion {
+correctPairs: number;
+totalPairs: number;
+wrongIndexes: number[];
+}
 
 function Playing({ socket, room }: infoRoom) {
     // const Startgame = () => {
@@ -13,14 +23,19 @@ function Playing({ socket, room }: infoRoom) {
     // };
 
     const [IsSubmit, setIsSubmit] = useState(false);
+    const [roundPlay, setroundPlay] = useState(0);
+    const [Maxround, setMaxround] = useState(1);
     const [StatePlaying, setStatePlaying] = useState("Playing");// Playing, Waiting, ShowAnswer, EndGame
     const [listcardQuestion, setlistcardQuestion] = useState({ question: "กำลังโหลดคำถาม...", ListCard: [{ id: "1", content: "🍎 Card 1", variant: 1 }, { id: "2", content: "🍊🍊 Card 2", variant: 2 }, { id: "3", content: "🍋🍋🍋 Card 3", variant: 3 }, { id: "4", content: "🍉 🍉🍉🍉Card 4", variant: 4 }] });
     console.log("📥 Playing:", listcardQuestion, StatePlaying, IsSubmit);
     useEffect(() => {
         socket.emit("RequestQuestion", { room });
-        socket.on("userGetQuestion", (data: any) => {
+        socket.on("userGetQuestion", (data: dataquestion) => {
             console.log("📥 การ์ดคำถาม:", data);
-            setlistcardQuestion(data);
+            setlistcardQuestion(data.question);
+            setMaxround(data.lengthQuestion);
+            setroundPlay(data.indexQuestion);
+
             setStatePlaying("Playing");
             setIsSubmit(false);
         });
@@ -46,18 +61,22 @@ function Playing({ socket, room }: infoRoom) {
         <div>
             {/* Header */}
             <div className="flex justify-center items-center ">
-                <div className="text-2xl font-bold space-x-3 mb-4 p-5  bg-sky-50 flex  flex-row w-1/3 justify-between items-center   rounded-xl shadow-xl ">
+                <div className="text-2xl font-bold space-x-3 mb-4 p-5  bg-sky-50 flex  flex-row w-1/3 justify-between items-center   rounded-b-xl shadow-xl ">
                     <div>  {listcardQuestion.question} และส่งคำตอบภายในเวลาที่กำหนด</div>
                     {/* Time */}
 
-                    <CircularProgress progress={10} textinner='3/5' textsub="รอบที่" />
+                    <CircularProgress progress={(roundPlay / Maxround) * 100} textinner={`${roundPlay}/${Maxround} `} textsub="รอบที่" colorhex="#4b4b4bff" colorhexsub="#acabab83"
+                        colorClassMain="text-stone-600" colorClasssub="text-stone-500" />
                     {/* Round */}
 
-                    <CircularProgress progress={10} textinner='19' textsub="วินาที" />
+                    <CircularProgress progress={10} textinner='19' textsub="วินาที" colorhex="#ff790cff" colorhexsub="#ffa1545e"
+                        colorClassMain="text-amber-500" colorClasssub="text-amber-400" />
                 </div>
             </div>
             {/* Body */}
+
             <DraggableCardList listCard={listcardQuestion} OnSubmitOrder={handleSubmitOrder} StatePlaying={StatePlaying}></DraggableCardList>
+
             {/* footer */}
             {StatePlaying == "ShowAnswer" &&
                 < button

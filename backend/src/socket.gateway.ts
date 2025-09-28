@@ -220,7 +220,9 @@ export class SocketGateway {
         if (indexQuestion < roomInfo.maxRound) {
             let question = this.questions[indexQuestion];
             question.ListCard = this.shuffleArray(question.ListCard);
-            client.emit('userGetQuestion', question);
+            indexQuestion++;
+            let lengthQuestion = roomInfo.maxRound;
+            client.emit('userGetQuestion', { question, indexQuestion, lengthQuestion });
         }
         else {
             client.emit('Error', 'หมดรอบแล้ว');
@@ -255,7 +257,7 @@ export class SocketGateway {
             roomInfo.userInfo.get(client.data.username)!.currentRound = 1;
         }
 
-      client.emit('userGetResultQuestion', result);
+        client.emit('userGetResultQuestion', result);
     }
 
     /**

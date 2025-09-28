@@ -1,9 +1,14 @@
 import React from "react";
+import { useState, useEffect } from "react";
 
-const CircularProgress = ({ size = 100, strokeWidth = 12, progress = 75, colorClassMain = "text-red-300", colorClasssub = "text-red-300", colorhex = "#f87171", textinner = "Test", textsub = "sub" }) => {
+const CircularProgress = ({ size = 100, strokeWidth = 12, progress = 75, colorClassMain = "text-red-300", colorClasssub = "text-red-300", colorhex = "#f87171", colorhexsub = "#e5e7eb", textinner = "Test", textsub = "sub" }) => {
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (progress / 100) * circumference;
+    const [offset, setoffset] = useState(circumference - (progress / 100) * circumference);
+
+    useEffect(() => {
+        setoffset(circumference - (progress / 100) * circumference);
+    }, [progress]);
 
     return (
         <div className="relative flex items-center justify-center">
@@ -14,7 +19,7 @@ const CircularProgress = ({ size = 100, strokeWidth = 12, progress = 75, colorCl
             >
                 {/* circle BG */}
                 <circle
-                    stroke="#e5e7eb"
+                    stroke={colorhexsub}
                     fill="transparent"
                     strokeWidth={strokeWidth}
                     r={radius}

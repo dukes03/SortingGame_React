@@ -19,6 +19,7 @@ interface CardProps {
     Textimage?: string;
     variant?: number;
     isDraggable?: boolean;
+    iswrong?: boolean;
 }
 type DraggableCardListProps = {
     listCard: any;
@@ -26,7 +27,7 @@ type DraggableCardListProps = {
     StatePlaying?: string;
 };
 
-function Card({ id, content, isDraggable }: CardProps,) {
+function Card({ id, header, content, description, isDraggable, iswrong }: CardProps,) {
 
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
@@ -40,22 +41,27 @@ function Card({ id, content, isDraggable }: CardProps,) {
         <div
             ref={setNodeRef}
             style={style}
-            // ถ้า isDraggable = false → ไม่กระจาย listeners/attributes เลย
             {...(isDraggable ? attributes : {})}
             {...(isDraggable ? listeners : {})}
-            className={`p-4 rounded-xl shadow bg-white border select-none  ${isDragging ? "shadow-lg scale-105 bg-blue-100" : ""}`}
+            className={`p-2 min-w-[240px]  max-w-[240px]    rounded-xl shadow   border border-2  border-dashed   border-amber-400 select-none  ${isDragging ? "shadow-lg scale-105 bg-blue-100" : ""}`}
         >
-            <p className="font-semibold">{content}</p>
+            <div className={`p-5 flex flex-col h-full items-center  justify-center  bg-white  rounded-xl  ${iswrong ? "bg-red" : "bg-white"}`}  >
+                <p className="px-3 text-lg text-center font-semibold">{header}</p>
+                <p className=" text-[150px] font-semibold">{content}</p>
+                <div className="p-3 border  border border-2 border-dashed rounded-xl border-gray-300 flex-grow ">
+                    <p className="text-md font-semibold">{description}</p>
+                </div>
+            </div>
         </div>
     );
 }
 
 export default function DraggableCardList({ listCard, OnSubmitOrder, StatePlaying }: DraggableCardListProps) {
     const [cards, setCards] = useState([
-        { id: "1", content: "🍎 Card 1", variant: 1 },
-        { id: "2", content: "🍊🍊 Card 2", variant: 2 },
-        { id: "3", content: "🍋🍋🍋 Card 3", variant: 3 },
-        { id: "4", content: "🍉 🍉🍉🍉Card 4", variant: 4 },
+        { id: "1", content: "🍎 Card 1", variant: 1, header: "", description: "" },
+        { id: "2", content: "🍊🍊 Card 2", variant: 2, header: "", description: "" },
+        { id: "3", content: "🍋🍋🍋 Card 3", variant: 3, header: "", description: "" },
+        { id: "4", content: "🍉 🍉🍉🍉Card 4", variant: 4, header: "", description: "" },
     ]);
 
     console.log("📥 DraggableCardList:", listCard, cards);
@@ -71,17 +77,24 @@ export default function DraggableCardList({ listCard, OnSubmitOrder, StatePlayin
             setCards(arrayMove(cards, oldIndex, newIndex));
         }
     };
-
+    const SetwrongIndexes = (wrongIndexes: number[]) => {
+        let newCards = cards.map((card, index) => ({
+            ...card,
+            iswrong: wrongIndexes.includes(index),
+        }));
+        newCards[0].iswrong = true;
+    }
     const handleSubmit = () => {
         const orderedVariants = cards.map((card) => card.variant || 0);
         console.log("📤 ส่งลำดับการ์ด:", orderedVariants);
+
         OnSubmitOrder(orderedVariants);
     };
     useEffect(() => {
         if (listCard && Array.isArray(listCard.ListCard)) {
             const newCards = listCard.ListCard.map((card: any, index: number) => ({
                 id: (index + 1).toString(),
-                content: `${card.Textimage} ${card.header}`,
+                content: `${card.Textimage}`,
                 header: card.header,
                 description: card.decription,
                 imageUrl: card.imageUrl,
@@ -89,37 +102,42 @@ export default function DraggableCardList({ listCard, OnSubmitOrder, StatePlayin
                 variant: card.variant,
             }));
             console.log("📤 useEffect:", newCards);
+            newCards[0].iswrong = true;
             setCards(newCards);
         }
-    }, [listCard, StatePlaying]);
+    }, [listCard]);
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
-            <h1 className="text-2xl font-bold mb-6">  Drag & Drop (Smooth Move)</h1>
-
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-            >
-                <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-                    <div className="w-full max-w-sm space-y-3">
-                        {cards.map((card) => (
-                            <Card key={card.id} id={card.id} content={card.content} isDraggable={StatePlaying == "Playing" } />
-                        ))}
-                    </div>
-                </SortableContext>
-            </DndContext>
-            {StatePlaying === "Playing" &&
-                <button
-                    onClick={handleSubmit}
-                    disabled={StatePlaying == "Playing" ? false : true}
-                    style={{
-                        backgroundColor: StatePlaying === "Playing" ? 'blue' : 'red'
-                    }}
-                    className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
+        <div className="   ">
+            <div className="flex flex-row items-center justify-center  space-x-5 overflow-x-auto  mx-5   ">
+                <button className="  px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"></button>
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
                 >
-                    Submit ลำดับปัจจุบัน
-                </button>}
+                    <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+                        <div className="w-full space-x-5 flex flex-row items-stretch  items-center justify-center overflow-x-auto  mx-5   ">
+                            {cards.map((card) => (
+                                <Card key={card.id} id={card.id} content={card.content} description={card.description} header={card.header} isDraggable={StatePlaying == "Playing"} />
+                            ))}
+                        </div>
+                    </SortableContext>
+                </DndContext>
+                <button className="  px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"></button>
+            </div>
+
+            {StatePlaying === "Playing" &&
+                <div className="flex justify-center items-center ">
+                    <button
+                        onClick={handleSubmit}
+                        disabled={StatePlaying == "Playing" ? false : true}
+                        style={{
+                            backgroundColor: StatePlaying === "Playing" ? 'blue' : 'red'
+                        }}
+                        className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
+                    >
+                        Submit ลำดับปัจจุบัน
+                    </button></div>}
         </div>
     );
 }
