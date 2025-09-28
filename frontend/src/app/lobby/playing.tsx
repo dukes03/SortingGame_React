@@ -67,7 +67,7 @@ function Playing({ socket, room }: infoRoom) {
         <div>
             {/* Header */}
             <div className="flex justify-center items-center ">
-                <div className="md:text-2xl sm:text-xl font-bold space-x-3 md:mb-4 md:p-5 sm:px-3  bg-sky-50 flex  flex-row md:w-1/3 sm:w-4/5 justify-between items-center   rounded-b-xl shadow-xl ">
+                <div className="lg:text-2xl sm:text-xl font-bold space-x-3 lg:mb-4 lg:p-5 sm:px-3  bg-sky-50 flex  flex-row lg:w-1/3 sm:w-4/5 justify-between items-center   rounded-b-xl shadow-xl ">
                     <div>  {listcardQuestion.question} และส่งคำตอบภายในเวลาที่กำหนด</div>
                     {/* Time */}
 

@@ -79,16 +79,23 @@ export class SocketGateway {
             if (arr[i] <= arr[i + 1]) correctPairs++;
             else { wrongIndexes.push(i); }
         }
-        const totalPairs = arr.length ;
+        const totalPairs = arr.length;
         return { correctPairs, totalPairs, wrongIndexes };
     }
 
     handleDisconnect(client: Socket) {
-        console.log(`❌ Client disconnected: ${client.data.username || client.id}`);
-        if (client.data.room) {
-            this.server.to(client.data.room).emit('userLeft', {
-                username: client.data.username,
-            });
+
+        const room = client.data.room;
+        const username = client.data.username;
+
+        if (room) {
+            this.server.to(room).emit('userLeft', { username });
+
+
+            this.removeUserFromRoom(room, username);
+
+
+            this.notifyUserList(room);
         }
     }
     // createRoom
@@ -297,15 +304,16 @@ export class SocketGateway {
     }
 
     //   remove user
-    private removeUserFromRoom(room: string, username: string) {
+    private async removeUserFromRoom(room: string, username: string) {
         const roomInfo = this.rooms.get(room);
         if (!roomInfo) return;
 
         roomInfo.userInfo?.delete(username);
 
-
-        if (roomInfo.userInfo && roomInfo.userInfo.size === 0) {
-            console.log(`Room deleted: ${room}`);
+        // 🔍 ตรวจสอบจำนวน socket จริง ๆ ใน room
+        const sockets = await this.server.in(room).fetchSockets();
+        if (sockets.length === 0) {
+            console.log(`🏁 Room deleted: ${room}`);
             this.rooms.delete(room);
         }
     }

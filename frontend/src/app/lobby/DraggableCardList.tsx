@@ -5,7 +5,7 @@ import {
 } from "@dnd-kit/core";
 import {
     SortableContext, arrayMove, useSortable,
-    verticalListSortingStrategy,
+    horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
 import { CSS } from "@dnd-kit/utilities";
@@ -46,17 +46,17 @@ function Card({ id, header, content, description, isDraggable, iswrong }: CardPr
             style={style}
             {...(isDraggable ? attributes : {})}
             {...(isDraggable ? listeners : {})}
-            className={`md:p-2   md:max-w-[240px]  sm:min-w-[120px] 
-                 sm:max-w-[120px] sm:max-h-[200px] md:max-h-[400px]   rounded-xl shadow   border border-2 
+            className={`lg:p-2   lg:max-w-[240px]  sm:min-w-[120px] 
+                 sm:max-w-[120px] sm:max-h-[200px] lg:max-h-[400px]   rounded-xl shadow   border border-2 
                   border-dashed   border-amber-400 select-none  
                   ${isDragging ? "shadow-lg scale-105 bg-blue-100" : ""}`}
         >
-            <div className={`md:p-5 flex flex-col h-full items-center justify-center rounded-xl transition-colors duration-300 ${iswrong ? "bg-red-500 text-white" : "bg-white"
+            <div className={`lg:p-5 flex flex-col h-full items-center justify-center rounded-xl transition-colors duration-300 ${iswrong ? "bg-red-500 text-white" : "bg-white"
                 }`}>
-                <p className="px-3 md:text-lg text-center font-semibold">{header}</p>
-                <p className=" md:text-9xl sm:text-7xl font-semibold mb-2">{content}</p>
-                <div className="p-3 border  border border-2 border-dashed rounded-xl border-gray-300 overflow-y-auto md:flex-grow ">
-                    <p className="md:text-xl sm:text-xs font-semibold ">{description}</p>
+                <p className="px-3 lg:text-lg text-center font-semibold">{header}</p>
+                <p className=" lg:text-9xl sm:text-7xl font-semibold mb-2">{content}</p>
+                <div className="p-3 border  border border-2 border-dashed rounded-xl border-gray-300 overflow-y-auto lg:flex-grow ">
+                    <p className="lg:text-xl sm:text-xs font-semibold ">{description}</p>
                 </div>
             </div>
         </div>
@@ -134,8 +134,8 @@ export default function DraggableCardList({ listCard, OnSubmitOrder, StatePlayin
                     collisionDetection={closestCenter}
                     onDragEnd={handleDragEnd}
                 >
-                    <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-                        <div className="w-full space-x-5 flex flex-row items-stretch  items-center justify-center overflow-x-auto  mx-5   ">
+                    <SortableContext items={cards.map((c) => c.id)} strategy={horizontalListSortingStrategy}>
+                        <div className="w-full lg:space-x-5 sm:space-x-1 sm:py-5 sm:px-30   flex flex-row items-stretch  items-center justify-center overflow-x-auto  mx-15   ">
                             {cards.map((card) => (
                                 <Card key={card.id} id={card.id} content={card.content} description={card.description}
                                     header={card.header} isDraggable={StatePlaying == "Playing"} iswrong={card.iswrong} />
