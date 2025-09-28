@@ -13,7 +13,7 @@ const PlayerCard = ({ name, avatar, isYou, isHost }: { name: string, avatar: str
                 </span>
             )}
             <div
-                className={`flex  justify-items-start items-center   px-5 py-2 rounded-full shadow-xl z-3 ${isYou && isHost ? "bg-amber-200" : isHost ? "bg-amber-200" : isYou ? "bg-red-100" : "bg-white"}`}
+                className={`flex  justify-items-start items-center   px-3 py-2 rounded-full shadow-xl z-3 ${isYou && isHost ? "bg-amber-200" : isHost ? "bg-amber-200" : isYou ? "bg-red-100" : "bg-sky-50"}`}
             >
                 {/* Avatar */}
                 <img

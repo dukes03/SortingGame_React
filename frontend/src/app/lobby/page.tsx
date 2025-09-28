@@ -79,25 +79,34 @@ export default function LobbyPage() {
 
         <div className="">
 
+            {/* Lobby Page */}
             {gameState === "lobby" && <div>
                 <Navbar />
-                <h1 className="text-[50px] font-bold text-center font-bold pt-6 m-4">Lobby  {room}</h1>
-                <div className="max-w-2xl mx-auto  bg-sky-50 shadow-xl  rounded-3xl  p-7   text-center flex   justify-center flex-row ">
-                    <div className="flex-1">
-                        <div className="flex justify-center items-center m-3 flex-col">
-                            <h2 className="mb-3 font-bold  text-center ">สามารถใช้ QR Code นี้ <br></br> เข้าห้องเข้าเล่นเกมได้จากทุกอุปกรณ์ </h2>
-                            <QRCodeSVG className="rounded" value={QRUrl} size={150} />
-                        </div>   </div>
-                    {Ishost &&
-                        <div className=" flex-1">
-                            <ContentHost socket={socket} room={room} />        </div>}
 
 
+                <div className="md:block sm:flex sm:flex-row  sm:justify-start  sm:items-start" >
 
-                </div>
-                <FooterUserList UserList={userList} Username={name} Hostname={hostname} />
+                    <div >
+                        <h1 className="text-[50px] font-bold text-center font-bold md:pt-6 md:m-4">Lobby  {room}</h1>
+                        {/* QR Code */}
+                        <div className=" md:max-w-2xl  md:mx-auto sm:mx-5 sm:px-10  sm:py-10  bg-sky-50 shadow-xl  rounded-3xl   md:p-7   text-center flex   justify-center flex-row ">
+
+                            <div className="flex-1">
+                                <div className="flex justify-center items-center md:m-3 sm:mx-1 md:flex-col">
+                                    <h2 className="sm:mb-3 font-bold  text-center ">สามารถใช้ QR Code นี้ <br></br> เข้าห้องเข้าเล่นเกมได้จากทุกอุปกรณ์ </h2>
+                                    <QRCodeSVG className="rounded" value={QRUrl} size={150} />
+                                </div>   </div>
+                            {Ishost &&
+                                <div className=" flex-1">
+                                    <ContentHost socket={socket} room={room} />        </div>}
+                        </div>
+                    </div>
+
+                    <FooterUserList UserList={userList} Username={name} Hostname={hostname} /></div>
             </div>}
+            {/* Play Page */}
             {gameState === "playing" && <Playing socket={socket} room={room} />}
+            {/* endgame Page */}
             {gameState === "endgame" &&
                 <div>
                     <h2 className="text-2xl font-bold mb-4">End Game  {room}</h2>

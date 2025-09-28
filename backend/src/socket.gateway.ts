@@ -255,7 +255,7 @@ export class SocketGateway {
             roomInfo.userInfo.get(client.data.username)!.currentRound = 1;
         }
 
-        this.server.to(room).emit('userGetResultQuestion', result);
+      client.emit('userGetResultQuestion', result);
     }
 
     /**
