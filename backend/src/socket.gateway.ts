@@ -21,6 +21,8 @@ interface UserInfo {
     isReady: boolean;
     indeximage: number;
     currentRound: number;
+    currentQuestionStart: number[];
+    currentQuestionEnd: number[];
 }
 interface CardInfo {
     header: string;
@@ -70,7 +72,7 @@ export class SocketGateway {
         return array;
     }
     handleConnection(client: Socket) {
-        console.log(`✅ Client connected: ${client.id}`);
+        //console.log(`✅ Client connected: ${client.id}`);
     }
     checkSortedAndScore(arr) {
         let correctPairs = 1;
@@ -84,20 +86,22 @@ export class SocketGateway {
     }
 
     handleDisconnect(client: Socket) {
-
         const room = client.data.room;
         const username = client.data.username;
 
-        if (room) {
-            this.server.to(room).emit('userLeft', { username });
+        if (room && username) {
+            const roomInfo = this.rooms.get(room);
+            const user = roomInfo?.userInfo.get(username);
+            if (user) {
+                console.log(`⚠️ ${username} disconnected, waiting for reconnect...`);
+                user.isReady = false;
+            }
 
 
             this.removeUserFromRoom(room, username);
-
-
-            this.notifyUserList(room);
         }
     }
+
     // createRoom
     @SubscribeMessage('createRoom')
     handleCreateRoom(
@@ -154,7 +158,10 @@ export class SocketGateway {
             roomInfo.userInfo = new Map<string, UserInfo>();
         }
         if (!roomInfo.userInfo.has(username)) {
-            roomInfo.userInfo.set(username, { scorePerRound: [], totalScore: 0, isReady: false, indeximage: 0, currentRound: 0 });
+            roomInfo.userInfo.set(username, {
+                scorePerRound: [], totalScore: 0, isReady: false, indeximage: 0, currentRound: 0, currentQuestionStart: [],
+                currentQuestionEnd: []
+            });
         }
 
         console.log(`📌 ${username} joined room: ${room}`);
@@ -182,7 +189,18 @@ export class SocketGateway {
             client.emit('Error', 'Only the host can start the game.');
         }
     }
-
+    // startGame
+    @SubscribeMessage('GetGameState')
+    handleGetGameState(
+        @MessageBody() data: { room: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        const { room } = data;
+        const roomInfo = this.rooms.get(room);
+        if (roomInfo) {
+            client.emit('userGetGameState', roomInfo.gameState);
+        }
+    }
     //  this.server.to(room).emit('userGetQuestion', this.questions[roomInfo.currentRound || 0]);
     /**
      
@@ -209,33 +227,63 @@ export class SocketGateway {
     */
     @SubscribeMessage('RequestQuestion')
     handleRequestQuestion(
-        @MessageBody() data: { room: string; },
+        @MessageBody() data: { room: string },
         @ConnectedSocket() client: Socket,
     ) {
         const { room } = data;
         const roomInfo = this.rooms.get(room);
-        let indexQuestion = 0;;
+        let indexQuestion = 0;
+
         if (!roomInfo) {
             client.emit('Error', 'Room not found.');
             return;
         }
-        console.log(client.data.username, roomInfo.userInfo.get(client.data.username)!.currentRound);
-        if (roomInfo.userInfo?.get(client.data.username)!.currentRound) {
-            indexQuestion = roomInfo.userInfo.get(client.data.username)!.currentRound;
+
+        const user = roomInfo.userInfo.get(client.data.username);
+        if (!user) {
+            client.emit('Error', 'User not found.');
+            return;
+        }
+
+        if (user.currentRound) {
+            indexQuestion = user.currentRound;
         }
 
         if (indexQuestion < roomInfo.maxRound) {
+
             let question = this.questions[indexQuestion];
             question.ListCard = this.shuffleArray(question.ListCard);
+
+            let timeLimit = 10;
+            let startTime = Date.now();
+            let endTime = startTime + timeLimit * 1000 + 1000;
+            console.log(user.scorePerRound, indexQuestion, user.currentQuestionStart.length)
+            if (indexQuestion >= user.currentQuestionStart.length) {
+                user.currentRound = indexQuestion;
+                user.currentQuestionStart[indexQuestion] = startTime;
+                user.currentQuestionEnd[indexQuestion] = endTime;
+
+            }
+            else {
+                startTime = user.currentQuestionStart[indexQuestion];
+                endTime = user.currentQuestionEnd[indexQuestion];
+
+
+            }
             indexQuestion++;
-            let lengthQuestion = roomInfo.maxRound;
-            client.emit('userGetQuestion', { question, indexQuestion, lengthQuestion });
-        }
-        else {
-            client.emit('Error', 'หมดรอบแล้ว');
-            client.emit('EndGameResult', roomInfo.userInfo.get(client.data.username)!.totalScore);
+            client.emit('userGetQuestion', {
+                question,
+                indexQuestion,
+                lengthQuestion: roomInfo.maxRound,
+                timeLimit,
+                startTime,
+                endTime,
+            });
+        } else {
+            client.emit('EndGameResult', user.totalScore);
         }
     }
+
     /**
      
     * userGetQuestion
@@ -251,10 +299,7 @@ export class SocketGateway {
             client.emit('Error', 'Room not found.');
             return;
         }
-
-
         const result = this.checkSortedAndScore(data.answer);
-
         roomInfo.userInfo?.get(client.data.username)?.scorePerRound.push(result.correctPairs);
         if (roomInfo.userInfo?.get(client.data.username)?.totalScore) {
             roomInfo.userInfo.get(client.data.username)!.totalScore += result.correctPairs;
@@ -267,6 +312,33 @@ export class SocketGateway {
         client.emit('userGetResultQuestion', result);
     }
 
+    /**
+ 
+* userGetQuestion
+*/
+    @SubscribeMessage('timeoutQuestion')
+    handleTimeoutQuestion(
+        @MessageBody() data: { room: string; answer: number[] },
+        @ConnectedSocket() client: Socket,
+    ) {
+        const { room } = data;
+        const roomInfo = this.rooms.get(room);
+        if (!roomInfo) {
+            client.emit('Error', 'Room not found.');
+            return;
+        }
+        
+        roomInfo.userInfo?.get(client.data.username)?.scorePerRound.push(0);
+        if (roomInfo.userInfo?.get(client.data.username)?.totalScore != null) {
+            roomInfo.userInfo.get(client.data.username)!.totalScore +=0;
+            roomInfo.userInfo.get(client.data.username)!.currentRound! += 1;
+        }
+        else {
+            roomInfo.userInfo.get(client.data.username)!.totalScore = 0;
+            roomInfo.userInfo.get(client.data.username)!.currentRound = 1;
+        }
+       // client.emit('emitRequestQuestion');
+    }
     /**
       
      * client : { room: string, message: string }
@@ -308,7 +380,6 @@ export class SocketGateway {
         const roomInfo = this.rooms.get(room);
         if (!roomInfo) return;
 
-        roomInfo.userInfo?.delete(username);
 
         // 🔍 ตรวจสอบจำนวน socket จริง ๆ ใน room
         const sockets = await this.server.in(room).fetchSockets();

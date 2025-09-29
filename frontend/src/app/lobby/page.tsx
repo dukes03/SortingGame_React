@@ -36,7 +36,7 @@ export default function LobbyPage() {
         }
         setName(username || "");
         socket.emit("joinRoom", { room, username });
-
+        socket.emit("GetGameState", { room });
         socket.on("userJoined", (data) => {
             setUserInRoom((prev) => prev + data.username + " เข้าห้อง ");
             console.log(data.username + " เข้าห้อง ");

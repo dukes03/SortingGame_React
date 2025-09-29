@@ -10,6 +10,9 @@ interface dataquestion {
     question: any;
     indexQuestion: number;
     lengthQuestion: number;
+    timeLimit: number;
+    startTime: number;
+    endTime: number;
 }
 interface ResultQuestion {
     correctPairs: number;
@@ -32,6 +35,33 @@ function Playing({ socket, room }: infoRoom) {
     const isDesktop = window.matchMedia('(min-width: 768px)').matches;
     const sizeCirvularValue = isDesktop ? 100 : 70;
 
+    const [seconds, setSeconds] = useState(0);
+    const [isRunning, setIsRunning] = useState(false);
+    const [endTime, setendTime] = useState(0);
+    const [timeLimit, settimeLimit] = useState(30);
+
+    useEffect(() => {
+        let timer: any;
+        if (isRunning) {
+            timer = setInterval(() => {
+                if (seconds > 0) {
+                    setSeconds(seconds - 1);
+                } else {
+                    clearInterval(timer);
+                    setIsRunning(false);
+                    if (!IsSubmit) {
+
+                        setIsSubmit(true);
+                        setStatePlaying("ShowAnswer");
+                        setscore(0);
+                        socket.emit("timeoutQuestion", { room });
+
+                    }
+                }
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [isRunning, seconds]);
     useEffect(() => {
         socket.emit("RequestQuestion", { room });
         socket.on("userGetQuestion", (data: dataquestion) => {
@@ -39,9 +69,12 @@ function Playing({ socket, room }: infoRoom) {
             setlistcardQuestion(data.question);
             setMaxround(data.lengthQuestion);
             setroundPlay(data.indexQuestion);
-
+            settimeLimit(data.timeLimit)
             setStatePlaying("Playing");
             setIsSubmit(false);
+            setSeconds((data.endTime - Date.now()) / 1000);
+            console.log((data.endTime - Date.now()) / 1000, "  tume")
+            setIsRunning(true);
         });
         socket.on("userGetResultQuestion", (data: ResultQuestion) => {
             console.log("📥 userGetResultQuestion:", data);
@@ -49,6 +82,10 @@ function Playing({ socket, room }: infoRoom) {
             setwrongIndexes(data.wrongIndexes);
             setStatePlaying("ShowAnswer");
         });
+        socket.on("emitRequestQuestion", () => {
+            socket.emit("RequestQuestion", { room });
+        });
+
     }, [socket, room]);
     const handleSubmitOrder = (order: number[]) => {
         if (StatePlaying == "Playing" && !IsSubmit) {
@@ -71,11 +108,11 @@ function Playing({ socket, room }: infoRoom) {
                     <div>  {listcardQuestion.question} และส่งคำตอบภายในเวลาที่กำหนด</div>
                     {/* Time */}
 
-                    <CircularProgress progress={(roundPlay / Maxround) * 100}  size={sizeCirvularValue} textinner={`${roundPlay}/${Maxround} `} textsub="รอบที่" colorhex="#4b4b4bff" colorhexsub="#acabab83"
+                    <CircularProgress progress={(roundPlay / Maxround) * 100} size={sizeCirvularValue} textinner={`${roundPlay}/${Maxround} `} textsub="รอบที่" colorhex="#4b4b4bff" colorhexsub="#acabab83"
                         colorClassMain="text-stone-600" colorClasssub="text-stone-500" />
                     {/* Round */}
 
-                    <CircularProgress progress={10} textinner='19' size={sizeCirvularValue} textsub="วินาที" colorhex="#ff790cff" colorhexsub="#ffa1545e"
+                    <CircularProgress progress={(seconds / timeLimit) * 100} textinner={Math.floor(seconds) + ""} size={sizeCirvularValue} textsub="วินาที" colorhex="#ff790cff" colorhexsub="#ffa1545e"
                         colorClassMain="text-amber-500" colorClasssub="text-amber-400" />
                 </div>
             </div>
