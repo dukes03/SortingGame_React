@@ -93,6 +93,7 @@ function Playing({ socket, room }: infoRoom) {
             socket.emit("submitAnswer", { room, answer: order });
             setStatePlaying("Waiting");
             setIsSubmit(true);
+            setIsRunning(false)
         }
     };
     const ReqNewQuestion = () => {
@@ -131,7 +132,7 @@ function Playing({ socket, room }: infoRoom) {
                         onClick={ReqNewQuestion}
                         className="md:m-6 sm:mx-10 sm:my-1  px-6   py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
                     >
-                        ไปข้อถัดไป
+                        ข้อถัดไป
                     </button>
                 </div >}
         </div >

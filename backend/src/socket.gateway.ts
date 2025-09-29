@@ -254,7 +254,7 @@ export class SocketGateway {
             let question = this.questions[indexQuestion];
             question.ListCard = this.shuffleArray(question.ListCard);
 
-            let timeLimit = 10;
+            let timeLimit = 20;
             let startTime = Date.now();
             let endTime = startTime + timeLimit * 1000 + 1000;
             console.log(user.scorePerRound, indexQuestion, user.currentQuestionStart.length)
